@@ -18,7 +18,9 @@ namespace DrawingDiagnosisTool
             InitializeComponent();
             LoadData(txtXlsInput.Text);
             PopulateTreeView();
-            cmbAnswers.Enabled = false;
+            answerGroup.Enabled = false;
+            radioNotPresent.Checked = true; // Always checked by default
+            UpdateSummaryTable(); // Show table at startup
         }
 
         private void LoadData(string path)
@@ -66,25 +68,81 @@ namespace DrawingDiagnosisTool
         {
             if (e.Node.Tag is DrawingItem item)
             {
-                cmbAnswers.Enabled = true;
+                answerGroup.Enabled = true;
                 if (answers.TryGetValue(item, out var ans))
-                    cmbAnswers.SelectedItem = ans;
+                {
+                    switch (ans)
+                    {
+                        case null:
+                        case "":
+                        case "לא מופיע": radioNotPresent.Checked = true; break;
+                        case "מופיע": radioPresent.Checked = true; break;
+                        case "בולט": radioProminent.Checked = true; break;
+                        case "חסר": radioMissing.Checked = true; break;
+                        default:
+                            radioNotPresent.Checked = true;
+                            radioPresent.Checked = false;
+                            radioProminent.Checked = false;
+                            radioMissing.Checked = false;
+                            break;
+                    }
+                }
                 else
-                    cmbAnswers.SelectedIndex = -1;
+                {
+                    radioNotPresent.Checked = true;
+                    radioPresent.Checked = false;
+                    radioProminent.Checked = false;
+                    radioMissing.Checked = false;
+                }
             }
             else
             {
-                cmbAnswers.Enabled = false;
-                cmbAnswers.SelectedIndex = -1;
+                answerGroup.Enabled = false;
+                radioNotPresent.Checked = true;
+                radioPresent.Checked = false;
+                radioProminent.Checked = false;
+                radioMissing.Checked = false;
             }
         }
 
-        private void cmbAnswers_SelectedIndexChanged(object sender, EventArgs e)
+        private void RadioAnswer_CheckedChanged(object sender, EventArgs e)
         {
-            if (treeQuestions.SelectedNode?.Tag is DrawingItem item && cmbAnswers.SelectedIndex >= 0)
+            if (treeQuestions.SelectedNode?.Tag is DrawingItem item && answerGroup.Enabled)
             {
-                answers[item] = cmbAnswers.SelectedItem.ToString();
+                if (radioNotPresent.Checked)
+                    answers[item] = "לא מופיע";
+                else if (radioPresent.Checked)
+                    answers[item] = "מופיע";
+                else if (radioProminent.Checked)
+                    answers[item] = "בולט";
+                else if (radioMissing.Checked)
+                    answers[item] = "חסר";
+                UpdateSummaryTable(); // Update table in real time
             }
+        }
+
+        private void UpdateSummaryTable()
+        {
+            var table = new DataTable();
+            table.Columns.Add("קטגוריה");
+            table.Columns.Add("נושא");
+            table.Columns.Add("תת נושא");
+            table.Columns.Add("פרט");
+            table.Columns.Add("הסבר");
+            table.Columns.Add("סטטוס");
+
+            foreach (var entry in answers.Where(p => p.Value != "לא מופיע"))
+            {
+                table.Rows.Add(
+                    entry.Key.Category,
+                    entry.Key.Topic,
+                    entry.Key.Subtopic,
+                    entry.Key.Detail,
+                    entry.Key.Explanation,
+                    entry.Value
+                );
+            }
+            dgvSummary.DataSource = table;
         }
 
         private void btnExport_Click(object sender, EventArgs e)
@@ -107,30 +165,6 @@ namespace DrawingDiagnosisTool
             }
 
             MessageBox.Show($"הסיכום נשמר כקובץ {outputPath}");
-        }
-
-        private void btnShowTable_Click(object sender, EventArgs e)
-        {
-            var table = new DataTable();
-            table.Columns.Add("קטגוריה");
-            table.Columns.Add("נושא");
-            table.Columns.Add("תת נושא");
-            table.Columns.Add("פרט");
-            table.Columns.Add("הסבר");
-            table.Columns.Add("סטטוס");
-
-            foreach (var entry in answers.Where(p => p.Value != "לא מופיע"))
-            {
-                table.Rows.Add(
-                    entry.Key.Category,
-                    entry.Key.Topic,
-                    entry.Key.Subtopic,
-                    entry.Key.Detail,
-                    entry.Key.Explanation,
-                    entry.Value
-                );
-            }
-            dgvSummary.DataSource = table;
         }
     }
 
