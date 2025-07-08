@@ -11,15 +11,14 @@ namespace DrawingDiagnosisTool
     public partial class Form1 : Form
     {
         private List<DrawingItem> items = new();
-        private int currentIndex = 0;
         private Dictionary<DrawingItem, string> answers = new();
 
         public Form1()
         {
             InitializeComponent();
-            // Use the input TextBox for the XLS file path
             LoadData(txtXlsInput.Text);
-            ShowCurrentItem();
+            PopulateTreeView();
+            cmbAnswers.Enabled = false;
         }
 
         private void LoadData(string path)
@@ -40,33 +39,53 @@ namespace DrawingDiagnosisTool
             }
         }
 
-        private void ShowCurrentItem()
+        private void PopulateTreeView()
         {
-            if (currentIndex < items.Count)
+            treeQuestions.Nodes.Clear();
+            var topicGroups = items.GroupBy(i => i.Topic);
+            foreach (var topicGroup in topicGroups)
             {
-                var item = items[currentIndex];
-                lblQuestion.Text = $"{item.Topic} > {item.Subtopic} > {item.Detail}";
+                var topicNode = new TreeNode(topicGroup.Key);
+                var subtopicGroups = topicGroup.GroupBy(i => i.Subtopic);
+                foreach (var subtopicGroup in subtopicGroups)
+                {
+                    var subtopicNode = new TreeNode(subtopicGroup.Key);
+                    foreach (var item in subtopicGroup)
+                    {
+                        var detailNode = new TreeNode(item.Detail) { Tag = item };
+                        subtopicNode.Nodes.Add(detailNode);
+                    }
+                    topicNode.Nodes.Add(subtopicNode);
+                }
+                treeQuestions.Nodes.Add(topicNode);
+            }
+            treeQuestions.ExpandAll();
+        }
+
+        private void treeQuestions_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (e.Node.Tag is DrawingItem item)
+            {
+                cmbAnswers.Enabled = true;
+                if (answers.TryGetValue(item, out var ans))
+                    cmbAnswers.SelectedItem = ans;
+                else
+                    cmbAnswers.SelectedIndex = -1;
             }
             else
             {
-                MessageBox.Show("סיימת את כל הפרטים. כעת תוכל לייצא סיכום.");
+                cmbAnswers.Enabled = false;
+                cmbAnswers.SelectedIndex = -1;
             }
         }
 
-        private void RecordAnswer(string answer)
+        private void cmbAnswers_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (currentIndex < items.Count)
+            if (treeQuestions.SelectedNode?.Tag is DrawingItem item && cmbAnswers.SelectedIndex >= 0)
             {
-                answers[items[currentIndex]] = answer;
-                currentIndex++;
-                ShowCurrentItem();
+                answers[item] = cmbAnswers.SelectedItem.ToString();
             }
         }
-
-        private void btnNotPresent_Click(object sender, EventArgs e) => RecordAnswer("לא מופיע");
-        private void btnPresent_Click(object sender, EventArgs e) => RecordAnswer("מופיע");
-        private void btnEmphasized_Click(object sender, EventArgs e) => RecordAnswer("בולט");
-        private void btnMissing_Click(object sender, EventArgs e) => RecordAnswer("חסר");
 
         private void btnExport_Click(object sender, EventArgs e)
         {
@@ -75,7 +94,6 @@ namespace DrawingDiagnosisTool
                 .GroupBy(p => p.Key.Category)
                 .ToDictionary(g => g.Key, g => g.Select(p => $"- {p.Key.Detail}: {p.Key.Explanation} ({p.Value})"));
 
-            // Use the output TextBox for the TXT file path
             string outputPath = txtTxtOutput.Text;
             using (var writer = new StreamWriter(outputPath, false, System.Text.Encoding.UTF8))
             {
@@ -93,7 +111,6 @@ namespace DrawingDiagnosisTool
 
         private void btnShowTable_Click(object sender, EventArgs e)
         {
-            // Show the summary as a table in the DataGridView
             var table = new DataTable();
             table.Columns.Add("קטגוריה");
             table.Columns.Add("נושא");
