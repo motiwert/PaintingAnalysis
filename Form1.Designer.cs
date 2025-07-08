@@ -4,6 +4,7 @@
     {
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.Button btnExport;
+        private System.Windows.Forms.Button btnCopySummary;
         private System.Windows.Forms.TextBox txtXlsInput;
         private System.Windows.Forms.TextBox txtTxtOutput;
         private System.Windows.Forms.Label lblXlsInput;
@@ -26,6 +27,7 @@
         private void InitializeComponent()
         {
             btnExport = new Button();
+            btnCopySummary = new Button();
             txtXlsInput = new TextBox();
             txtTxtOutput = new TextBox();
             lblXlsInput = new Label();
@@ -43,18 +45,29 @@
             // 
             // btnExport
             // 
-            btnExport.Location = new Point(561, 449);
+            btnExport.Location = new Point(533, 126);
             btnExport.Margin = new Padding(2);
             btnExport.Name = "btnExport";
-            btnExport.Size = new Size(105, 24);
+            btnExport.Size = new Size(140, 24);
             btnExport.TabIndex = 2;
             btnExport.Text = "שמור סיכום";
             btnExport.UseVisualStyleBackColor = true;
             btnExport.Click += btnExport_Click;
             // 
+            // btnCopySummary
+            // 
+            btnCopySummary.Location = new Point(533, 163);
+            btnCopySummary.Margin = new Padding(2);
+            btnCopySummary.Name = "btnCopySummary";
+            btnCopySummary.Size = new Size(140, 24);
+            btnCopySummary.TabIndex = 8;
+            btnCopySummary.Text = "העתק סיכום ללוח";
+            btnCopySummary.UseVisualStyleBackColor = true;
+            btnCopySummary.Click += btnCopySummary_Click;
+            // 
             // txtXlsInput
             // 
-            txtXlsInput.Location = new Point(12, 451);
+            txtXlsInput.Location = new Point(527, 309);
             txtXlsInput.Margin = new Padding(2);
             txtXlsInput.Name = "txtXlsInput";
             txtXlsInput.Size = new Size(148, 23);
@@ -63,16 +76,16 @@
             // 
             // txtTxtOutput
             // 
-            txtTxtOutput.Location = new Point(285, 451);
+            txtTxtOutput.Location = new Point(527, 219);
             txtTxtOutput.Margin = new Padding(2);
             txtTxtOutput.Name = "txtTxtOutput";
             txtTxtOutput.Size = new Size(148, 23);
             txtTxtOutput.TabIndex = 6;
-            txtTxtOutput.Text = "סיכום.txt";
+            txtTxtOutput.Text = "סיכום.docx";
             // 
             // lblXlsInput
             // 
-            lblXlsInput.Location = new Point(166, 454);
+            lblXlsInput.Location = new Point(591, 292);
             lblXlsInput.Margin = new Padding(2, 0, 2, 0);
             lblXlsInput.Name = "lblXlsInput";
             lblXlsInput.Size = new Size(84, 15);
@@ -82,7 +95,7 @@
             // 
             // lblTxtOutput
             // 
-            lblTxtOutput.Location = new Point(439, 454);
+            lblTxtOutput.Location = new Point(589, 202);
             lblTxtOutput.Margin = new Padding(2, 0, 2, 0);
             lblTxtOutput.Name = "lblTxtOutput";
             lblTxtOutput.Size = new Size(84, 15);
@@ -95,11 +108,11 @@
             dgvSummary.AllowUserToAddRows = false;
             dgvSummary.AllowUserToDeleteRows = false;
             dgvSummary.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvSummary.Location = new Point(11, 482);
+            dgvSummary.Location = new Point(11, 451);
             dgvSummary.Margin = new Padding(2);
             dgvSummary.Name = "dgvSummary";
             dgvSummary.ReadOnly = true;
-            dgvSummary.Size = new Size(662, 229);
+            dgvSummary.Size = new Size(662, 260);
             dgvSummary.TabIndex = 7;
             // 
             // treeQuestions
@@ -122,7 +135,7 @@
             answerGroup.Margin = new Padding(2);
             answerGroup.Name = "answerGroup";
             answerGroup.Padding = new Padding(2);
-            answerGroup.Size = new Size(140, 152);
+            answerGroup.Size = new Size(140, 110);
             answerGroup.TabIndex = 1;
             answerGroup.TabStop = false;
             answerGroup.Text = "סטטוס";
@@ -177,6 +190,7 @@
             Controls.Add(treeQuestions);
             Controls.Add(answerGroup);
             Controls.Add(btnExport);
+            Controls.Add(btnCopySummary);
             Controls.Add(lblXlsInput);
             Controls.Add(txtXlsInput);
             Controls.Add(lblTxtOutput);

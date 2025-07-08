@@ -1,10 +1,14 @@
-﻿using System;
+﻿using ClosedXML.Excel;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using ClosedXML.Excel;
+using Xceed.Words.NET;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace DrawingDiagnosisTool
 {
@@ -152,22 +156,74 @@ namespace DrawingDiagnosisTool
                 .GroupBy(p => p.Key.Category)
                 .ToDictionary(g => g.Key, g => g.Select(p => $"- {p.Key.Detail}: {p.Key.Explanation} ({p.Value})"));
 
-            string outputPath = txtTxtOutput.Text;
-            using (var writer = new StreamWriter(outputPath, false, System.Text.Encoding.UTF8))
+            string outputPath = Path.ChangeExtension(txtTxtOutput.Text, ".docx");
+
+            using (WordprocessingDocument wordDoc = WordprocessingDocument.Create(outputPath, WordprocessingDocumentType.Document))
             {
+                MainDocumentPart mainPart = wordDoc.AddMainDocumentPart();
+                mainPart.Document = new Document();
+                Body body = new Body();
+
                 foreach (var category in grouped.Keys)
                 {
-                    writer.WriteLine($"תחום: {category}");
+                    // Category title (bold, larger font)
+                    var categoryParagraph = new Paragraph(
+                        new Run(
+                            new RunProperties(
+                                new Bold(),
+                                new FontSize() { Val = "28" } // 14pt
+                            ),
+                            new Text($"תחום: {category}")
+                        )
+                    );
+                    // Set RTL for Hebrew
+                    categoryParagraph.ParagraphProperties = new ParagraphProperties(new BiDi());
+                    body.Append(categoryParagraph);
+
                     foreach (var line in grouped[category])
-                        writer.WriteLine(line);
-                    writer.WriteLine();
+                    {
+                        var lineParagraph = new Paragraph(
+                            new Run(
+                                new RunProperties(
+                                    new FontSize() { Val = "24" } // 12pt
+                                ),
+                                new Text(line)
+                            )
+                        );
+                        lineParagraph.ParagraphProperties = new ParagraphProperties(new BiDi());
+                        body.Append(lineParagraph);
+                    }
+                    // Add empty paragraph for spacing
+                    var emptyParagraph = new Paragraph(new Run(new Text("")));
+                    emptyParagraph.ParagraphProperties = new ParagraphProperties(new BiDi());
+                    body.Append(emptyParagraph);
                 }
+                mainPart.Document.Append(body);
+                mainPart.Document.Save();
             }
 
             MessageBox.Show($"הסיכום נשמר כקובץ {outputPath}");
         }
-    }
 
+        private void btnCopySummary_Click(object sender, EventArgs e)
+        {
+            var grouped = answers
+                .Where(p => p.Value != "לא מופיע")
+                .GroupBy(p => p.Key.Category)
+                .ToDictionary(g => g.Key, g => g.Select(p => $"- {p.Key.Detail}: {p.Key.Explanation} ({p.Value})"));
+
+            var summary = new System.Text.StringBuilder();
+            foreach (var category in grouped.Keys)
+            {
+                summary.AppendLine($"תחום: {category}");
+                foreach (var line in grouped[category])
+                    summary.AppendLine(line);
+                summary.AppendLine();
+            }
+            Clipboard.SetText(summary.ToString());
+            MessageBox.Show("הסיכום הועתק ללוח. ניתן להדביק בתוך מסמך");
+        }
+    }
     public class DrawingItem
     {
         public string Topic { get; set; }
