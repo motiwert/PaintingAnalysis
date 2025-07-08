@@ -24,7 +24,7 @@ namespace DrawingDiagnosisTool
             PopulateTreeView();
             answerGroup.Enabled = false;
             radioNotPresent.Checked = true; // Always checked by default
-            UpdateSummaryTable(); // Show table at startup
+            UpdateSummaryTable(); // Show table at startup            
         }
 
         private void LoadData(string path)
@@ -222,6 +222,108 @@ namespace DrawingDiagnosisTool
             }
             Clipboard.SetText(summary.ToString());
             MessageBox.Show("הסיכום הועתק ללוח. ניתן להדביק בתוך מסמך");
+        }
+
+        private void btnClearAll_Click(object sender, EventArgs e)
+        {
+            ClearAllInputs();
+        }
+
+        private void ClearAllInputs()
+        {
+            txtChildName.Text = string.Empty;
+            answers.Clear();
+            UpdateSummaryTable();
+            treeQuestions.SelectedNode = null;
+            answerGroup.Enabled = false;
+            radioNotPresent.Checked = true;
+            radioPresent.Checked = false;
+            radioProminent.Checked = false;
+            radioMissing.Checked = false;
+        }
+
+        private void btnFinishAndSave_Click(object sender, EventArgs e)
+        {
+            string childName = txtChildName.Text.Trim();
+            if (string.IsNullOrEmpty(childName))
+            {
+                MessageBox.Show("אנא הזן את שם הילד.");
+                return;
+            }
+            var grouped = answers
+                .Where(p => p.Value != "לא מופיע")
+                .GroupBy(p => p.Key.Category)
+                .ToDictionary(g => g.Key, g => g.Select(p => $"- {p.Key.Detail}: {p.Key.Explanation} ({p.Value})"));
+
+            string outputPath = Path.GetFullPath(Path.ChangeExtension(txtTxtOutput.Text, ".docx"));
+            string reportDate = DateTime.Now.ToString("dd/MM/yyyy");
+
+            using (WordprocessingDocument wordDoc = WordprocessingDocument.Create(outputPath, WordprocessingDocumentType.Document))
+            {
+                MainDocumentPart mainPart = wordDoc.AddMainDocumentPart();
+                mainPart.Document = new Document();
+                Body body = new Body();
+
+                // Add child name and date at the top
+                var nameParagraph = new Paragraph(
+                    new Run(
+                        new RunProperties(new Bold(), new FontSize() { Val = "28" }),
+                        new Text($"שם הילד: {childName}")
+                    )
+                );
+                nameParagraph.ParagraphProperties = new ParagraphProperties(new BiDi());
+                body.Append(nameParagraph);
+
+                var dateParagraph = new Paragraph(
+                    new Run(
+                        new RunProperties(new FontSize() { Val = "24" }),
+                        new Text($"תאריך הדו\"ח: {reportDate}")
+                    )
+                );
+                dateParagraph.ParagraphProperties = new ParagraphProperties(new BiDi());
+                body.Append(dateParagraph);
+
+                // Add empty paragraph for spacing
+                var emptyParagraph1 = new Paragraph(new Run(new Text("")));
+                emptyParagraph1.ParagraphProperties = new ParagraphProperties(new BiDi());
+                body.Append(emptyParagraph1);
+
+                foreach (var category in grouped.Keys)
+                {
+                    var categoryParagraph = new Paragraph(
+                        new Run(
+                            new RunProperties(
+                                new Bold(),
+                                new FontSize() { Val = "28" }
+                            ),
+                            new Text($"תחום: {category}")
+                        )
+                    );
+                    categoryParagraph.ParagraphProperties = new ParagraphProperties(new BiDi());
+                    body.Append(categoryParagraph);
+
+                    foreach (var line in grouped[category])
+                    {
+                        var lineParagraph = new Paragraph(
+                            new Run(
+                                new RunProperties(
+                                    new FontSize() { Val = "24" }
+                                ),
+                                new Text(line)
+                            )
+                        );
+                        lineParagraph.ParagraphProperties = new ParagraphProperties(new BiDi());
+                        body.Append(lineParagraph);
+                    }
+                    var emptyParagraph = new Paragraph(new Run(new Text("")));
+                    emptyParagraph.ParagraphProperties = new ParagraphProperties(new BiDi());
+                    body.Append(emptyParagraph);
+                }
+                mainPart.Document.Append(body);
+                mainPart.Document.Save();
+            }
+            ClearAllInputs();
+            MessageBox.Show($"נשמר בקובץ {outputPath}");
         }
     }
     public class DrawingItem

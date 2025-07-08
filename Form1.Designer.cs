@@ -16,6 +16,10 @@
         private System.Windows.Forms.RadioButton radioPresent;
         private System.Windows.Forms.RadioButton radioProminent;
         private System.Windows.Forms.RadioButton radioMissing;
+        private System.Windows.Forms.TextBox txtChildName;
+        private System.Windows.Forms.Label lblChildName;
+        private System.Windows.Forms.Button btnFinishAndSave;
+        private System.Windows.Forms.Button btnClearAll;
 
         protected override void Dispose(bool disposing)
         {
@@ -39,16 +43,20 @@
             radioPresent = new RadioButton();
             radioProminent = new RadioButton();
             radioMissing = new RadioButton();
+            txtChildName = new TextBox();
+            lblChildName = new Label();
+            btnFinishAndSave = new Button();
+            btnClearAll = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvSummary).BeginInit();
             answerGroup.SuspendLayout();
             SuspendLayout();
             // 
             // btnExport
             // 
-            btnExport.Location = new Point(533, 126);
+            btnExport.Location = new Point(527, 367);
             btnExport.Margin = new Padding(2);
             btnExport.Name = "btnExport";
-            btnExport.Size = new Size(140, 24);
+            btnExport.Size = new Size(146, 24);
             btnExport.TabIndex = 2;
             btnExport.Text = "שמור סיכום";
             btnExport.UseVisualStyleBackColor = true;
@@ -56,10 +64,10 @@
             // 
             // btnCopySummary
             // 
-            btnCopySummary.Location = new Point(533, 163);
+            btnCopySummary.Location = new Point(527, 339);
             btnCopySummary.Margin = new Padding(2);
             btnCopySummary.Name = "btnCopySummary";
-            btnCopySummary.Size = new Size(140, 24);
+            btnCopySummary.Size = new Size(146, 24);
             btnCopySummary.TabIndex = 8;
             btnCopySummary.Text = "העתק סיכום ללוח";
             btnCopySummary.UseVisualStyleBackColor = true;
@@ -67,25 +75,25 @@
             // 
             // txtXlsInput
             // 
-            txtXlsInput.Location = new Point(527, 309);
+            txtXlsInput.Location = new Point(527, 255);
             txtXlsInput.Margin = new Padding(2);
             txtXlsInput.Name = "txtXlsInput";
-            txtXlsInput.Size = new Size(148, 23);
+            txtXlsInput.Size = new Size(146, 23);
             txtXlsInput.TabIndex = 4;
             txtXlsInput.Text = "מילון ציורים גירסה 2.xlsx";
             // 
             // txtTxtOutput
             // 
-            txtTxtOutput.Location = new Point(527, 219);
+            txtTxtOutput.Location = new Point(527, 147);
             txtTxtOutput.Margin = new Padding(2);
             txtTxtOutput.Name = "txtTxtOutput";
-            txtTxtOutput.Size = new Size(148, 23);
+            txtTxtOutput.Size = new Size(144, 23);
             txtTxtOutput.TabIndex = 6;
             txtTxtOutput.Text = "סיכום.docx";
             // 
             // lblXlsInput
             // 
-            lblXlsInput.Location = new Point(591, 292);
+            lblXlsInput.Location = new Point(591, 238);
             lblXlsInput.Margin = new Padding(2, 0, 2, 0);
             lblXlsInput.Name = "lblXlsInput";
             lblXlsInput.Size = new Size(84, 15);
@@ -95,10 +103,10 @@
             // 
             // lblTxtOutput
             // 
-            lblTxtOutput.Location = new Point(589, 202);
+            lblTxtOutput.Location = new Point(589, 130);
             lblTxtOutput.Margin = new Padding(2, 0, 2, 0);
             lblTxtOutput.Name = "lblTxtOutput";
-            lblTxtOutput.Size = new Size(84, 15);
+            lblTxtOutput.Size = new Size(82, 15);
             lblTxtOutput.TabIndex = 5;
             lblTxtOutput.Text = "קובץ סיכום:";
             lblTxtOutput.TextAlign = ContentAlignment.MiddleRight;
@@ -182,6 +190,46 @@
             radioMissing.Text = "חסר";
             radioMissing.CheckedChanged += RadioAnswer_CheckedChanged;
             // 
+            // txtChildName
+            // 
+            txtChildName.Location = new Point(527, 201);
+            txtChildName.Margin = new Padding(2);
+            txtChildName.Name = "txtChildName";
+            txtChildName.Size = new Size(146, 23);
+            txtChildName.TabIndex = 10;
+            // 
+            // lblChildName
+            // 
+            lblChildName.Location = new Point(591, 184);
+            lblChildName.Margin = new Padding(2, 0, 2, 0);
+            lblChildName.Name = "lblChildName";
+            lblChildName.Size = new Size(84, 15);
+            lblChildName.TabIndex = 9;
+            lblChildName.Text = "שם הילד:";
+            lblChildName.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // btnFinishAndSave
+            // 
+            btnFinishAndSave.Location = new Point(527, 423);
+            btnFinishAndSave.Margin = new Padding(2);
+            btnFinishAndSave.Name = "btnFinishAndSave";
+            btnFinishAndSave.Size = new Size(146, 24);
+            btnFinishAndSave.TabIndex = 11;
+            btnFinishAndSave.Text = "סיים ושמור";
+            btnFinishAndSave.UseVisualStyleBackColor = true;
+            btnFinishAndSave.Click += btnFinishAndSave_Click;
+            // 
+            // btnClearAll
+            // 
+            btnClearAll.Location = new Point(527, 395);
+            btnClearAll.Margin = new Padding(2);
+            btnClearAll.Name = "btnClearAll";
+            btnClearAll.Size = new Size(148, 24);
+            btnClearAll.TabIndex = 12;
+            btnClearAll.Text = "נקה הכל";
+            btnClearAll.UseVisualStyleBackColor = true;
+            btnClearAll.Click += btnClearAll_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -195,6 +243,10 @@
             Controls.Add(txtXlsInput);
             Controls.Add(lblTxtOutput);
             Controls.Add(txtTxtOutput);
+            Controls.Add(lblChildName);
+            Controls.Add(txtChildName);
+            Controls.Add(btnFinishAndSave);
+            Controls.Add(btnClearAll);
             Controls.Add(dgvSummary);
             Margin = new Padding(2);
             Name = "Form1";
